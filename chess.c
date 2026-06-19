@@ -3,26 +3,27 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-char board[8][8];
-
-void init_board();
-void print_board();
-void user_query();
-int is_valid_move(int from_row, int from_col, int to_row, int to_col);
-int is_valid_knight(int from_row, int from_col, int to_row, int to_col);
-int is_valid_bishop(int from_row, int from_col, int to_row, int to_col);
-int is_valid_rook(int from_row, int from_col, int to_row, int to_col);
+void init_board(char board[][8]);
+void print_board(char board[][8]);
+void user_query(char board[][8]);
+int is_valid_move(char board[][8], int from_row, int from_col, int to_row, int to_col);
+int is_valid_knight(char board[][8], int from_row, int from_col, int to_row, int to_col);
+int is_valid_bishop(char board[][8], int from_row, int from_col, int to_row, int to_col);
+int is_valid_rook(char board[][8], int from_row, int from_col, int to_row, int to_col);
+int is_valid_queen(char board[][8], int from_row, int from_col, int to_row, int to_col);
+int is_valid_pawn(char board[][8], int from_row, int from_col, int to_row, int to_col);
 
 int main(){
-    init_board();
-    print_board();
+    char board[8][8];
+    init_board(board);
+    print_board(board);
     for (int i = 0; i < 10; i++){
-        user_query();}
+        user_query(board);}
     return 0;
 }
 
-void init_board(){
-    memset(board, '_', sizeof(board));
+void init_board(char board[][8]){
+    memset(board, '_', sizeof(board[0][0]) * 8 * 8);
 
     char black_back_row[] = "RNBQKBNR";
     memcpy(board[0], black_back_row, 8);
@@ -33,16 +34,12 @@ void init_board(){
     memcpy(board[7], white_back_row, 8);
 }
 
-void print_board() {
-    int rows = sizeof(board) / sizeof(board[0]);
-    int columns = sizeof(board[0]) / sizeof(board[0][0]);
-
+void print_board(char board[][8]) {
     printf("     a   b   c   d   e   f   g   h\n");
     printf("   +--------------------------------+\n");
-
-    for (int i = 0; i < rows; i++) {
+    for (int i = 0; i < 8; i++) {
         printf("%d  |", 8-i);
-        for (int j = 0; j < columns; j++) {
+        for (int j = 0; j < 8; j++) {
             if ((i % 2 == 0 && j % 2 == 0) || (i % 2 == 1 && j % 2 == 1)) {
                 printf("\033[48;5;230m %c  \033[m", board[i][j]);
             } else {
@@ -54,7 +51,7 @@ void print_board() {
     printf("   +--------------------------------+\n");
 }
 
-void user_query (){
+void user_query (char board[][8]){
     char from[3], to[3];
     int invalid = 0;
     int from_col, from_row, to_col, to_row;
@@ -79,28 +76,34 @@ void user_query (){
         to_col = to[0] - 'a';
         to_row = '8' - to[1];
 
-    } while (!is_valid_move(from_row, from_col, to_row, to_col));
+    } while (!is_valid_move(board, from_row, from_col, to_row, to_col));
     board[to_row][to_col] = board[from_row][from_col];
     board[from_row][from_col] = '_';
 
-    print_board();
+    print_board(board);
     }
 
-int is_valid_move(int from_row, int from_col, int to_row, int to_col) {
+int is_valid_move(char board[][8], int from_row, int from_col, int to_row, int to_col) {
     char piece = board[from_row][from_col];
     if (piece == 'n' || piece == 'N') {
-        return is_valid_knight(from_row, from_col, to_row, to_col);
+        return is_valid_knight(board, from_row, from_col, to_row, to_col);
     }
     if (piece == 'b' || piece == 'B') {
-        return is_valid_bishop(from_row, from_col, to_row, to_col);
+        return is_valid_bishop(board, from_row, from_col, to_row, to_col);
     }
     if (piece == 'r' || piece == 'R') {
-        return is_valid_rook(from_row, from_col, to_row, to_col);
+        return is_valid_rook(board, from_row, from_col, to_row, to_col);
+    }
+    if (piece == 'q' || piece == 'Q') {
+        return is_valid_queen(board, from_row, from_col, to_row, to_col);
+    }
+    if (piece == 'p' || piece == 'P') {
+        return is_valid_pawn(board, from_row, from_col, to_row, to_col);
     }
     return 1;
 }
 
-int is_valid_knight(int from_row, int from_col, int to_row, int to_col){
+int is_valid_knight(char board[][8], int from_row, int from_col, int to_row, int to_col){
     if (!(abs(from_row - to_row) == 2 && abs(from_col - to_col) == 1 || abs(from_row - to_row) == 1 && abs(from_col - to_col) == 2)){
         return 0;
     }
@@ -111,7 +114,7 @@ int is_valid_knight(int from_row, int from_col, int to_row, int to_col){
     return 1;
 }
 
-int is_valid_bishop(int from_row, int from_col, int to_row, int to_col){
+int is_valid_bishop(char board[][8], int from_row, int from_col, int to_row, int to_col){
     if (!(abs(from_row - to_row) == abs(from_col - to_col))){
         return 0;
     }
@@ -127,7 +130,7 @@ int is_valid_bishop(int from_row, int from_col, int to_row, int to_col){
     int current_pos_x = from_col + stepX;
     int current_pos_y = from_row + stepY;
 
-    while (current_pos_x != to_col && current_pos_y != to_row){
+    while (current_pos_x != to_col || current_pos_y != to_row){
         if (board[current_pos_y][current_pos_x] != '_'){
             return 0;
         }
@@ -138,7 +141,7 @@ int is_valid_bishop(int from_row, int from_col, int to_row, int to_col){
     return 1;
 }
 
-int is_valid_rook(int from_row, int from_col, int to_row, int to_col){
+int is_valid_rook(char board[][8], int from_row, int from_col, int to_row, int to_col){
     if (!(from_row == to_row || from_col == to_col)){
         return 0;
     }
@@ -154,7 +157,7 @@ int is_valid_rook(int from_row, int from_col, int to_row, int to_col){
     int current_pos_x = from_col + stepX;
     int current_pos_y = from_row + stepY;
 
-    while (current_pos_x != to_col && current_pos_y != to_row){
+    while (current_pos_x != to_col || current_pos_y != to_row){
         if (board[current_pos_y][current_pos_x] != '_'){
             return 0;
         }
@@ -163,4 +166,61 @@ int is_valid_rook(int from_row, int from_col, int to_row, int to_col){
     }
 
     return 1;
+}
+
+int is_valid_queen(char board[][8], int from_row, int from_col, int to_row, int to_col){
+    if (!(abs(from_row - to_row) == abs(from_col - to_col) || from_row == to_row || from_col == to_col)){
+        return 0;
+    }
+    if (isupper(board[to_row][to_col]) && isupper(board[from_row][from_col]) || islower(board[to_row][to_col]) && islower(board[from_row][from_col])){
+        printf("Same color piece\n");
+        return 0;
+    }
+
+    int stepX = from_col < to_col ? 1: from_col > to_col ? -1 : 0;
+    int stepY = from_row < to_row ? 1: from_row > to_row ? -1 : 0;
+
+    int current_pos_x = from_col + stepX;
+    int current_pos_y = from_row + stepY;
+
+    while (current_pos_x != to_col || current_pos_y != to_row){
+        if (board[current_pos_y][current_pos_x] != '_'){
+            return 0;
+        }
+        current_pos_x += stepX;
+        current_pos_y += stepY;
+    }
+    return 1;
+}
+
+int is_valid_pawn(char board[][8], int from_row, int from_col, int to_row, int to_col){
+    if (isupper(board[to_row][to_col]) && isupper(board[from_row][from_col]) || islower(board[to_row][to_col]) && islower(board[from_row][from_col])){
+        printf("Same color piece\n");
+        return 0;
+    }
+    if (board[from_row][from_col] == 'P'){
+        if (to_row - from_row == 1 && from_col == to_col && board[to_row][to_col] == '_'){
+            return 1;
+        }
+            if (from_row == 1 && to_row - from_row == 2 && from_col == to_col && board[to_row][to_col] == '_' && board[from_row+1][to_col] == '_'){
+                return 1;
+            }
+        if (to_row - from_row == 1 && (from_col - to_col == 1 || from_col - to_col == -1) && islower(board[to_row][to_col])){
+            return 1;
+        } 
+    }
+    if (board[from_row][from_col] == 'p'){
+        if (from_row - to_row == 1 && from_col == to_col && board[to_row][to_col] == '_'){
+            return 1;
+        }
+            if (from_row == 6 && from_row - to_row == 2 && from_col == to_col && board[to_row][to_col] == '_' && board[from_row-1][to_col] == '_'){
+                return 1;
+            }
+        if (from_row - to_row == 1 && (from_col - to_col == 1 || from_col - to_col == -1) && isupper(board[to_row][to_col])){
+            return 1;
+        } 
+    }
+    // En passant needs to be implemented
+    // Promotion needs to be implemented
+    return 0;
 }
