@@ -1,4 +1,4 @@
-# Chess Engine (C)
+# KnightShift
 
 A chess engine written in C, implementing board representation and legal move validation from scratch — no external chess libraries.
 
