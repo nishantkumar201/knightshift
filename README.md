@@ -1,44 +1,73 @@
 # KnightShift
 
-A chess engine written in C, implementing board representation and legal move validation from scratch — no external chess libraries.
+A chess move-validation engine written in C, built from scratch without external chess libraries.
+
+KnightShift explores chess rules, board representation, move validation, and game-state management.
+
+The long-term goal is to use this software as the foundation for a **physical smart chessboard** capable of detecting, tracking, and validating moves in real time.
 
 ## Status: Work in Progress
 
-This is research/hobby code, not production-hardened. Docstrings and full test coverage are still to come.
+The project currently supports standard piece movement validation and king-safety checking. Special moves, endgame detection, and hardware integration are still under development.
 
-### Working
+### Implemented
 
-- Full 8x8 board representation and initialization
-- Legal move validation for every piece type (pawn, knight, bishop, rook, queen, king)
-- Pawn promotion (to queen, rook, bishop, or knight)
-- Castling, both kingside and queenside, with proper tracking of whether the king or rooks have already moved
-- Same-color-piece and path-obstruction checks (a piece can't move through or onto its own pieces)
-- Terminal-based board display with alternating square coloring
+- 8×8 chessboard representation and initialization
+- Terminal-based board display with alternating square colors
+- Standard movement rules for all six piece types
+- Pawn movement and standard captures
+- Path-obstruction detection for sliding pieces
+- Turn-based move validation
+- Prevention of capturing friendly pieces
+- Rejection of moves that leave the moving player's king in check
+- Check detection using piece attack patterns
+- Game-state simulation for move validation
+- Interactive gameplay supporting up to 10 valid moves per session
 
-### Not yet implemented
+### In Progress
 
-- **En passant** — not handled
-- **Check detection** — `is_in_check()` is currently stubbed to always return `0`
-- **Checkmate / stalemate detection** — depends on check detection, so also not implemented
-- No move history, undo, or game-over conditions yet
+- Preventing direct king captures
+- Displaying check notifications during gameplay
 
-## Why
+### Not Yet Implemented
 
-This is a step toward a longer-term goal: a physical "smart chessboard" that can track and validate moves in real time. The engine here is the move-validation core that a hardware/sensor layer would eventually sit on top of.
+- Checkmate and stalemate detection
+- Kingside and queenside castling
+- Pawn promotion
+- En passant
+- Move history and undo
+- Complete game-over handling
+- Computer opponent / move evaluation
+- Physical chessboard integration
 
-## Running it
+## Running KnightShift
 
-```
-gcc chess.c -o chess
+Compile using GCC:
+
+```bash
+gcc -Wall -Wextra -std=c11 chess.c -o chess
 ./chess
 ```
 
-Moves are entered as `from`/`to` square pairs (e.g. `e2` → `e4`) via terminal prompts.
+Moves are entered using algebraic square coordinates, such as `e2` followed by `e4`.
 
-## Roadmap
+The current interface is terminal-based and supports **10 valid moves per session**. Invalid moves can be retried without counting toward this limit.
 
-- [ ] En passant
-- [ ] Check / checkmate / stalemate detection
-- [ ] Move history and undo
-- [ ] Basic engine evaluation (eventually)
-- [ ] Hardware integration for the smart chessboard concept
+## Project Roadmap
+
+- [ ] Implement castling
+- [ ] Implement pawn promotion
+- [ ] Implement en passant
+- [ ] Implement checkmate and stalemate detection
+- [ ] Expand automated tests
+- [ ] Add move history and undo functionality
+- [ ] Explore basic computer move evaluation
+- [ ] Investigate hardware and sensor integration for a physical smart chessboard
+
+## Long-Term Vision
+
+KnightShift is intended to become the software foundation of a physical smart chessboard.
+
+The proposed system would combine a chess move-validation engine with hardware capable of identifying piece movements and maintaining an accurate representation of the board.
+
+Future development may explore sensor-based move detection, synchronization between physical and digital board states, and real-time feedback for invalid moves.
